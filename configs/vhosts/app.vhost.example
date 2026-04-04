@@ -1,0 +1,16 @@
+# Скопируйте в app.vhost (только расширение .vhost подхватывается).
+# После изменений: docker compose restart nginx
+#
+# Бэкенд на хосте (localhost): укажите PORT, на который слушает сервис на машине.
+# Прокси по умолчанию идёт на host.docker.internal:PORT (см. docker-compose extra_hosts).
+# Сервис на хосте лучше слушать 0.0.0.0:PORT, не только 127.0.0.1.
+
+SUBDOMAIN=app
+PORT=8080
+
+# Только если бэкенд не на хосте, а в другом контейнере в той же Docker-сети:
+# UPSTREAM_HOST=myservice
+
+# Либо полное имя вместо SUBDOMAIN+BASE_DOMAIN:
+# SERVER_NAME=app.example.org
+# PORT=3000

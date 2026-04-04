@@ -1,0 +1,29 @@
+services:
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    image: example-nginx-lecert:local
+    container_name: example-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      BASE_DOMAIN: ${BASE_DOMAIN:-example.ru}
+      LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:-}
+      LETSENCRYPT_STAGING: ${LETSENCRYPT_STAGING:-0}
+      VHOST_DIR: /data/vhosts
+    volumes:
+      - ./configs/vhosts:/data/vhosts:ro
+      - ./letsencrypt:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    networks:
+      - proxy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+networks:
+  proxy:
+    name: example_proxy
+    driver: bridge

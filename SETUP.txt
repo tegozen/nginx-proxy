@@ -1,0 +1,42 @@
+Полуавтоматический reverse-proxy: один контейнер nginx + certbot внутри образа.
+
+Добавление субдомена
+--------------------
+1) Скопируйте configs/vhosts/app.vhost.example → configs/vhosts/<имя>.vhost
+2) Укажите SUBDOMAIN (или SERVER_NAME=полный FQDN) и PORT (порт бэкенда).
+3) В .env задайте LETSENCRYPT_EMAIL (обязателен, если для нового имени ещё нет сертификата в ./letsencrypt).
+4) DNS A на IP сервера для этого FQDN.
+5) docker compose up -d --build   (первый раз)   или   docker compose restart nginx
+
+При старте контейнер сам:
+- собирает nginx-конфиг из всех *.vhost;
+- поднимает временный nginx, выпускает недостающие сертификаты Let’s Encrypt (HTTP-01);
+- включает HTTPS и редирект с :80;
+- по cron раз в 12 часов выполняет certbot renew и nginx reload.
+
+Бэкенд на хосте (localhost)
+---------------------------
+Все сервисы слушают на машине как «localhost» — в .vhost достаточно PORT (и SUBDOMAIN/SERVER_NAME).
+Прокси ходит на хост через host.docker.internal (уже в docker-compose: extra_hosts … host-gateway).
+UPSTREAM_HOST не указывайте, если бэкенд на той же машине.
+
+Важно: внутри контейнера 127.0.0.1 — это сам контейнер, не ваш ПК/сервер.
+На хосте приложение должно слушать 0.0.0.0:PORT (или явный IP интерфейса), а не только 127.0.0.1:PORT,
+иначе с Docker-сети запрос с host.docker.internal может не попасть в процесс.
+
+Если когда-нибудь понадобится бэкенд в другом контейнере: docker network connect <name из compose> <container> и UPSTREAM_HOST=<имя_сервиса>.
+
+Перезапуск vs reload
+--------------------
+Новые/изменённые .vhost обрабатываются только при старте entrypoint → нужен restart контейнера.
+Обновление уже выданных сертификатов подхватывает cron через reload без restart.
+
+Переменные окружения
+--------------------
+Скопируйте .env.example → .env и заполните email (или задайте переменные в compose).
+BASE_DOMAIN — зона по умолчанию для SUBDOMAIN.
+LETSENCRYPT_STAGING=1 — тестовый ACME (без rate limit).
+
+Файлы *.vhost исполняются как shell-скрипты (source): не кладите туда недоверенное содержимое.
+
+Старый сервис certbot из прошлой версии compose: docker compose down --remove-orphans
