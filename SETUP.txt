@@ -8,6 +8,8 @@
 4) DNS A на IP сервера для этого FQDN.
 5) docker compose up -d --build   (первый раз)   или   docker compose restart nginx
 
+На HTTPS по умолчанию проксируются: /, /index.html, /api/, /ws, /assets/ (бандлы SPA), /favicon.ico, /robots.txt; остальные пути — 403. После смены шаблона в образе: docker compose build --no-cache && docker compose up -d.
+
 При старте контейнер сам:
 - собирает nginx-конфиг из всех *.vhost;
 - поднимает временный nginx, выпускает недостающие сертификаты Let’s Encrypt (HTTP-01);
@@ -40,3 +42,11 @@ LETSENCRYPT_STAGING=1 — тестовый ACME (без rate limit).
 Файлы *.vhost исполняются как shell-скрипты (source): не кладите туда недоверенное содержимое.
 
 Старый сервис certbot из прошлой версии compose: docker compose down --remove-orphans
+
+Ошибка «Bind for 0.0.0.0:80 failed: port is already allocated»
+----------------------------------------------------------------
+На хосте уже занят порт 80 (или 443) — часто системный nginx/apache или другой контейнер.
+Проверка: sudo ss -tlnp | grep -E ':80|:443'   и   docker ps (колонка PORTS).
+Освободите 80 и 443 под этот compose: остановите лишний сервис на хосте или другой stack.
+Для Let’s Encrypt HTTP-01 снаружи нужны стандартные 80/443 на этом сервере; перенос только на
+8080 без прокси/редиректа с :80 ломает выдачу сертификатов.

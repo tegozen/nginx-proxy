@@ -129,6 +129,27 @@ server {
         include /etc/nginx/snippets/proxy-params.conf;
     }
 
+    # SPA (Vite/Vue/React): бандлы и иконки; иначе location / отдаёт 403
+    location /assets/ {
+        proxy_pass http://backend_${u};
+        include /etc/nginx/snippets/proxy-params.conf;
+    }
+
+    location = /favicon.ico {
+        proxy_pass http://backend_${u};
+        include /etc/nginx/snippets/proxy-params.conf;
+    }
+
+    location = /robots.txt {
+        proxy_pass http://backend_${u};
+        include /etc/nginx/snippets/proxy-params.conf;
+    }
+
+    location = /index.html {
+        proxy_pass http://backend_${u};
+        include /etc/nginx/snippets/proxy-params.conf;
+    }
+
     location / {
         return 403;
     }
