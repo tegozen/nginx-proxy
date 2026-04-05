@@ -8,7 +8,7 @@
 4) DNS A на IP сервера для этого FQDN.
 5) docker compose up -d --build   (первый раз)   или   docker compose restart nginx
 
-На HTTPS по умолчанию проксируются: /, /index.html, /api/, /ws, /assets/ (бандлы SPA), /favicon.ico, /robots.txt; остальные пути — 403. После смены шаблона в образе: docker compose build --no-cache && docker compose up -d.
+На HTTPS по умолчанию проксируются: /, /index.html, /api/, /ws, /assets/, /favicon.ico, /robots.txt, файлы в корне с одним сегментом и расширением (.png, .svg, .json, .webmanifest и др.); остальные пути — 403. После смены шаблона: docker compose build --no-cache && docker compose up -d.
 
 При старте контейнер сам:
 - собирает nginx-конфиг из всех *.vhost;
