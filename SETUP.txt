@@ -8,7 +8,9 @@
 4) DNS A на IP сервера для этого FQDN.
 5) docker compose up -d --build   (первый раз)   или   docker compose restart nginx
 
-На HTTPS по умолчанию проксируются: /, /index.html, /api/, /ws, /assets/, /favicon.ico, /robots.txt, файлы в корне с одним сегментом и расширением (.png, .svg, .json, .webmanifest и др.); остальные пути — 403. После смены шаблона: docker compose build --no-cache && docker compose up -d.
+На HTTPS по умолчанию проксируются: /, /index.html, /healthz, /api/, /ws, /assets/, /favicon.ico, /robots.txt, файлы в корне с одним сегментом и расширением (.png, .svg, .css, .js, .json, .webmanifest и др.); остальные пути — 403. После смены шаблона: docker compose build --no-cache && docker compose up -d.
+
+Пример vhost для OpenClaw (страница токенов по сессиям): configs/vhosts/openclaw-usage.vhost.example → скопировать в *.vhost и задать SUBDOMAIN; см. комментарии внутри про PORT / host.docker.internal / docker network.
 
 При старте контейнер сам:
 - собирает nginx-конфиг из всех *.vhost;

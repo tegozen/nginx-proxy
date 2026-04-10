@@ -150,8 +150,13 @@ server {
         include /etc/nginx/snippets/proxy-params.conf;
     }
 
-    # Один сегмент пути + расширение: /logo.png, /vite.svg, manifest.webmanifest
-    location ~* ^/[^/]+\.(png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf|eot|map|webmanifest|json)\$ {
+    location = /healthz {
+        proxy_pass http://backend_${u};
+        include /etc/nginx/snippets/proxy-params.conf;
+    }
+
+    # Один сегмент пути + расширение: /logo.png, /styles.css, /app.js, manifest.webmanifest
+    location ~* ^/[^/]+\.(png|jpg|jpeg|gif|svg|webp|ico|woff2?|ttf|eot|map|webmanifest|json|css|js)\$ {
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
     }

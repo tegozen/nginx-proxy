@@ -1,0 +1,17 @@
+# OpenClaw: веб-страница токенов по сессиям (docker compose сервис openclaw-usage-web, порт 3099).
+# Скопируйте в openclaw-usage.vhost (или другое имя .vhost), подставьте SUBDOMAIN и перезапустите nginx.
+#
+# Важно (см. SETUP.txt): nginx в Docker ходит на бэкенд через host.docker.internal.
+# Тогда openclaw на хосте должен слушать 0.0.0.0:3099, не только 127.0.0.1:
+#   в .env OpenClaw: OPENCLAW_USAGE_WEB_BIND=0.0.0.0
+#   плюс OPENCLAW_USAGE_WEB_TOKEN и фаервол только для доверенных IP / только localhost+nginx.
+#
+# Альтернатива без открытия порта наружу: подключить контейнер usage-web к сети nginx и задать upstream:
+#   docker network connect example_proxy openclaw-usage-web
+#   UPSTREAM_HOST=openclaw-usage-web
+#   PORT=3099
+
+SUBDOMAIN=openclaw-usage
+PORT=3099
+
+# UPSTREAM_HOST=openclaw-usage-web
