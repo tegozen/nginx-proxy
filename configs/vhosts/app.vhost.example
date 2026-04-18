@@ -14,3 +14,7 @@ PORT=8080
 # Либо полное имя вместо SUBDOMAIN+BASE_DOMAIN:
 # SERVER_NAME=app.example.org
 # PORT=3000
+
+# LightRAG и др.: в HTTPS по умолчанию не проксируются пути вроде /webui (остальной / → 403).
+# Раскомментируйте, чтобы проксировать весь бэкенд целиком:
+# FULL_PROXY=1

@@ -161,12 +161,25 @@ server {
         include /etc/nginx/snippets/proxy-params.conf;
     }
 
+NGX
+            if [ "${FULL_PROXY:-0}" = "1" ]; then
+                cat >>"$tmp" <<NGX
+    location / {
+        proxy_pass http://backend_${u};
+        include /etc/nginx/snippets/proxy-params.conf;
+    }
+}
+
+NGX
+            else
+                cat >>"$tmp" <<NGX
     location / {
         return 403;
     }
 }
 
 NGX
+            fi
         else
             log "no cert yet for $fqdn — HTTP only until certbot succeeds"
             cat >>"$tmp" <<NGX
@@ -206,7 +219,7 @@ server {
 NGX
         fi
 
-        unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST
+        unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY
     done
 
     mv -f "$tmp" "$out"
@@ -230,10 +243,10 @@ issue_missing_certs() {
         fi
         if [ -n "${PORT:-}" ] && [ -n "$fqdn" ] && ! cert_exists "$fqdn"; then
             need_issue=1
-            unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST
+            unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY
             break
         fi
-        unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST
+        unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY
     done
 
     [ "$need_issue" -eq 0 ] && return 0
@@ -248,15 +261,15 @@ issue_missing_certs() {
         elif [ -n "${SUBDOMAIN:-}" ]; then
             fqdn="${SUBDOMAIN}.${BASE_DOMAIN}"
         else
-            unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST
+            unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY
             continue
         fi
         if [ -z "${PORT:-}" ]; then
-            unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST
+            unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY
             continue
         fi
         if cert_exists "$fqdn"; then
-            unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST
+            unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY
             continue
         fi
         log "requesting certificate for $fqdn"
@@ -272,7 +285,7 @@ issue_missing_certs() {
         else
             log "certbot failed for $fqdn (HTTP-only until fixed)"
         fi
-        unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST
+        unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY
     done
 }
 
