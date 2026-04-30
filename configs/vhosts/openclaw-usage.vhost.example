@@ -13,3 +13,4 @@
 SERVER_NAME=openclaw.example.org
 PORT=3099
 UPSTREAM_HOST=openclaw-usage-web
+# CLIENT_MAX_BODY_SIZE=50m

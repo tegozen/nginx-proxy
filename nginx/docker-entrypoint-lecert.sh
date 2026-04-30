@@ -70,6 +70,10 @@ render_vhosts() {
         local uphost="${UPSTREAM_HOST:-host.docker.internal}"
         local u
         u="$(upsafe "$fqdn")"
+        local client_max_body_size_directive=""
+        if [ -n "${CLIENT_MAX_BODY_SIZE:-}" ]; then
+            client_max_body_size_directive="    client_max_body_size ${CLIENT_MAX_BODY_SIZE};"
+        fi
 
         cat >>"$tmp" <<NGX
 upstream backend_${u} {
@@ -83,6 +87,7 @@ NGX
 server {
     listen 80;
     server_name ${fqdn};
+${client_max_body_size_directive}
 
     location ^~ /.well-known/acme-challenge/ {
         root ${WEBROOT};
@@ -106,6 +111,7 @@ server {
     listen 443 ssl;
     http2 on;
     server_name ${fqdn};
+${client_max_body_size_directive}
 
     ssl_certificate     ${LE_LIVE}/${fqdn}/fullchain.pem;
     ssl_certificate_key ${LE_LIVE}/${fqdn}/privkey.pem;
@@ -186,6 +192,7 @@ NGX
 server {
     listen 80;
     server_name ${fqdn};
+${client_max_body_size_directive}
 
     location ^~ /.well-known/acme-challenge/ {
         root ${WEBROOT};
@@ -219,7 +226,7 @@ server {
 NGX
         fi
 
-        unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY
+        unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY CLIENT_MAX_BODY_SIZE
     done
 
     mv -f "$tmp" "$out"
@@ -243,10 +250,10 @@ issue_missing_certs() {
         fi
         if [ -n "${PORT:-}" ] && [ -n "$fqdn" ] && ! cert_exists "$fqdn"; then
             need_issue=1
-            unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY
+            unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY CLIENT_MAX_BODY_SIZE
             break
         fi
-        unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY
+        unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY CLIENT_MAX_BODY_SIZE
     done
 
     [ "$need_issue" -eq 0 ] && return 0
@@ -261,15 +268,15 @@ issue_missing_certs() {
         elif [ -n "${SUBDOMAIN:-}" ]; then
             fqdn="${SUBDOMAIN}.${BASE_DOMAIN}"
         else
-            unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY
+            unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY CLIENT_MAX_BODY_SIZE
             continue
         fi
         if [ -z "${PORT:-}" ]; then
-            unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY
+            unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY CLIENT_MAX_BODY_SIZE
             continue
         fi
         if cert_exists "$fqdn"; then
-            unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY
+            unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY CLIENT_MAX_BODY_SIZE
             continue
         fi
         log "requesting certificate for $fqdn"
@@ -285,7 +292,7 @@ issue_missing_certs() {
         else
             log "certbot failed for $fqdn (HTTP-only until fixed)"
         fi
-        unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY
+        unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY CLIENT_MAX_BODY_SIZE
     done
 }
 

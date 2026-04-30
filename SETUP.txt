@@ -10,6 +10,9 @@
 
 На HTTPS по умолчанию проксируются: /, /index.html, /healthz, /api/, /ws, /assets/, /favicon.ico, /robots.txt, файлы в корне с одним сегментом и расширением (.png, .svg, .css, .js, .json, .webmanifest и др.); остальные пути — 403.
 
+Лимит тела запроса задаётся на уровне vhost через CLIENT_MAX_BODY_SIZE (например, 50m) в файле *.vhost.
+Если переменная не задана, остаётся стандартный лимит nginx (1m).
+
 LightRAG (Web UI /webui, /docs и т.д.): в *.vhost добавьте FULL_PROXY=1 — тогда location / проксируется на бэкенд целиком (пересборка образа nginx после правки docker-entrypoint-lecert.sh).
 
 Ключ LIGHTRAG_API_KEY задаётся в .env сервиса LightRAG на хосте, не в этом nginx-proxy. Nginx здесь ключ не подставляет; при необходимости расширьте snippets/proxy-params.conf в образе (редко нужно).
