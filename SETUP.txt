@@ -8,7 +8,7 @@
 4) DNS A на IP сервера для этого FQDN.
 5) docker compose up -d --build   (первый раз)   или   docker compose restart nginx
 
-На HTTPS по умолчанию проксируются: /, /index.html, /healthz, /api/, /ws, /assets/, /favicon.ico, /robots.txt, файлы в корне с одним сегментом и расширением (.png, .svg, .css, .js, .json, .webmanifest и др.); остальные пути — 403.
+На HTTPS по умолчанию проксируются: /, /index.html, /healthz, /api/, /ws, /livekit и /livekit/ (LiveKit signaling, WebSocket, увеличенные буферы заголовка под JWT в query), /assets/, /favicon.ico, /robots.txt, файлы в корне с одним сегментом и расширением (.png, .svg, .css, .js, .json, .webmanifest и др.); остальные пути — 403. На :80 для тех же путей — редирект на HTTPS, кроме /.well-known, /ws и /livekit (как у /ws — до получения сертификата см. HTTP-only блок в entrypoint).
 
 Лимит тела запроса задаётся на уровне vhost через CLIENT_MAX_BODY_SIZE (например, 50m) в файле *.vhost.
 Если переменная не задана, остаётся стандартный лимит nginx (1m).
@@ -49,6 +49,33 @@ UPSTREAM_HOST не указывайте, если бэкенд на той же 
 Скопируйте .env.example → .env и заполните email (или задайте переменные в compose).
 BASE_DOMAIN — зона по умолчанию для SUBDOMAIN.
 LETSENCRYPT_STAGING=1 — тестовый ACME (без rate limit).
+
+Веб-панель управления (опционально)
+------------------------------------
+Опциональный сервис `control-panel` в `docker-compose.yml` (профиль `control`) даёт UI для тех же
+действий, что и вручную: `git pull`, `docker compose up/restart`, перезагрузка nginx, правка `*.vhost`,
+поток `docker logs`, дополнительные compose-каталоги из JSON. Ручной сценарий не меняется: файлы
+`*.vhost` по-прежнему на диске, для новых/сильно изменённых vhost нужен `docker compose restart nginx`
+(как выше).
+
+Запуск на том же сервере (пример):
+  docker compose --profile control build control-panel
+  docker compose --profile control up -d control-panel
+
+Порт по умолчанию только на localhost (см. `CONTROL_PANEL_BIND` в compose). Откройте
+http://127.0.0.1:8081 — либо добавьте отдельный vhost HTTPS с авторизацией на уровне прокси.
+Панель использует доступ к `/var/run/docker.sock` от root внутри контейнера: это эквивалентно высокому
+уровню привилегий на хосте — задавайте `CONTROL_JWT_SECRET` и `CONTROL_ADMIN_PASSWORD_HASH`, не светите
+порт во внешний интернет без защиты.
+
+Переменные (`.env`): `CONTROL_JWT_SECRET`; `CONTROL_ADMIN_PASSWORD_HASH` или (только не на проде)
+`CONTROL_ADMIN_PASSWORD`; при необходимости `CONTROL_COMPOSE_PROJECT`, `CONTROL_LOG_COMPOSE_PROJECTS`;
+`CONTROL_EXTRA_PROJECTS_JSON` со списком `{ "id", "cwd", "compose_files?", "compose_project?" }`, где `cwd`
+— абсолютный путь *внутри контейнеров панели* (дополнительные тома задаёте во `volumes:` рядом с панелью).
+Каталоги прокси и vhosts: `PROXY_COMPOSE_HOST_DIR`, `VHOSTS_HOST_DIR` (пути на хосте к тому же дереву,
+что монтирует nginx-proxy).
+
+Чтобы собрать только nginx без панели: используйте `docker compose up -d nginx` без `--profile control`.
 
 Файлы *.vhost исполняются как shell-скрипты (source): не кладите туда недоверенное содержимое.
 

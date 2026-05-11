@@ -102,6 +102,24 @@ ${client_max_body_size_directive}
         include /etc/nginx/snippets/proxy-params.conf;
     }
 
+    location = /livekit {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
+        proxy_pass http://backend_${u};
+        proxy_buffering off;
+        include /etc/nginx/snippets/proxy-params.conf;
+    }
+
+    location /livekit/ {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
+        proxy_pass http://backend_${u};
+        proxy_buffering off;
+        include /etc/nginx/snippets/proxy-params.conf;
+    }
+
     location / {
         return 301 https://\$host\$request_uri;
     }
@@ -112,6 +130,9 @@ server {
     http2 on;
     server_name ${fqdn};
 ${client_max_body_size_directive}
+
+    client_header_buffer_size 16k;
+    large_client_header_buffers 8 32k;
 
     ssl_certificate     ${LE_LIVE}/${fqdn}/fullchain.pem;
     ssl_certificate_key ${LE_LIVE}/${fqdn}/privkey.pem;
@@ -132,6 +153,24 @@ ${client_max_body_size_directive}
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \$connection_upgrade;
         proxy_pass http://backend_${u};
+        include /etc/nginx/snippets/proxy-params.conf;
+    }
+
+    location = /livekit {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
+        proxy_pass http://backend_${u};
+        proxy_buffering off;
+        include /etc/nginx/snippets/proxy-params.conf;
+    }
+
+    location /livekit/ {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
+        proxy_pass http://backend_${u};
+        proxy_buffering off;
         include /etc/nginx/snippets/proxy-params.conf;
     }
 
@@ -171,6 +210,9 @@ NGX
             if [ "${FULL_PROXY:-0}" = "1" ]; then
                 cat >>"$tmp" <<NGX
     location / {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
     }
@@ -194,6 +236,9 @@ server {
     server_name ${fqdn};
 ${client_max_body_size_directive}
 
+    client_header_buffer_size 16k;
+    large_client_header_buffers 8 32k;
+
     location ^~ /.well-known/acme-challenge/ {
         root ${WEBROOT};
         default_type "text/plain";
@@ -204,6 +249,24 @@ ${client_max_body_size_directive}
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection \$connection_upgrade;
         proxy_pass http://backend_${u};
+        include /etc/nginx/snippets/proxy-params.conf;
+    }
+
+    location = /livekit {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
+        proxy_pass http://backend_${u};
+        proxy_buffering off;
+        include /etc/nginx/snippets/proxy-params.conf;
+    }
+
+    location /livekit/ {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
+        proxy_pass http://backend_${u};
+        proxy_buffering off;
         include /etc/nginx/snippets/proxy-params.conf;
     }
 
@@ -218,6 +281,9 @@ ${client_max_body_size_directive}
     }
 
     location / {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
     }
