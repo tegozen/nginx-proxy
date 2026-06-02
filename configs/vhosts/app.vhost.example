@@ -8,8 +8,11 @@
 SUBDOMAIN=app
 PORT=8080
 
-# Только если бэкенд не на хосте, а в другом контейнере в той же Docker-сети:
+# Только если бэкенд не на хосте, а в другом контейнере / удалённой машине:
 # UPSTREAM_HOST=myservice
+# UPSTREAM_HOST=203.0.113.10
+# PORT=8080
+# Не пишите порт в UPSTREAM_HOST (не 203.0.113.10:8080 — только IP/имя).
 
 # Либо полное имя вместо SUBDOMAIN+BASE_DOMAIN:
 # SERVER_NAME=app.example.org

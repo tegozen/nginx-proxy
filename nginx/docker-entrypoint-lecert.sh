@@ -68,6 +68,20 @@ render_vhosts() {
         fi
 
         local uphost="${UPSTREAM_HOST:-host.docker.internal}"
+        local port="${PORT}"
+        # UPSTREAM_HOST — только IP/hostname; порт задаётся через PORT=
+        if [[ "$uphost" == *:* ]]; then
+            log "WARN $f: UPSTREAM_HOST must not include :port (use PORT=); using ${uphost%%:*}"
+            uphost="${uphost%%:*}"
+        fi
+        uphost="${uphost#http://}"
+        uphost="${uphost#https://}"
+        uphost="${uphost%%/*}"
+        port="${port#:}"
+        if [ -z "$uphost" ]; then
+            log "skip $f: UPSTREAM_HOST is empty (host only, no :port)"
+            continue
+        fi
         local u
         u="$(upsafe "$fqdn")"
         local client_max_body_size_directive=""
@@ -77,7 +91,7 @@ render_vhosts() {
 
         cat >>"$tmp" <<NGX
 upstream backend_${u} {
-    server ${uphost}:${PORT};
+    server ${uphost}:${port};
 }
 
 NGX

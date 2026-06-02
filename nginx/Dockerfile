@@ -6,7 +6,8 @@ RUN install -d -o nginx -g nginx -m 0755 /var/lib/nginx/vhosts.d \
     && install -d -o nginx -g nginx -m 0755 /var/www/certbot
 
 COPY docker-entrypoint-lecert.sh /docker-entrypoint-lecert.sh
-RUN chmod +x /docker-entrypoint-lecert.sh
+RUN sed -i 's/\r$//' /docker-entrypoint-lecert.sh \
+    && chmod +x /docker-entrypoint-lecert.sh
 
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY snippets/ /etc/nginx/snippets/

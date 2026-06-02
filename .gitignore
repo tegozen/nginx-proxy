@@ -1,3 +1,5 @@
 letsencrypt/*
 !letsencrypt/.gitkeep
 .env
+configs/vhosts/*
+!configs/vhosts/*.example

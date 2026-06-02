@@ -7,8 +7,8 @@ services:
     container_name: example-nginx
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "${NGINX_HTTP_PORT:-80}:80"
+      - "${NGINX_HTTPS_PORT:-443}:443"
     environment:
       BASE_DOMAIN: ${BASE_DOMAIN:-example.ru}
       LETSENCRYPT_EMAIL: ${LETSENCRYPT_EMAIL:-}
