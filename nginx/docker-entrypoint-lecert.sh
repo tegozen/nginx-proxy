@@ -109,24 +109,29 @@ ${client_max_body_size_directive}
     }
 
     location /ws {
+        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
-        proxy_set_header Connection \$connection_upgrade;
     }
 
     location = /livekit {
+        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
-        proxy_pass http://backend_${u};
-        include /etc/nginx/snippets/proxy-params.conf;
         proxy_set_header Connection \$connection_upgrade;
+        proxy_pass http://backend_${u};
+        proxy_buffering off;
+        include /etc/nginx/snippets/proxy-params.conf;
     }
 
     location /livekit/ {
+        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
-        proxy_pass http://backend_${u};
-        include /etc/nginx/snippets/proxy-params.conf;
         proxy_set_header Connection \$connection_upgrade;
+        proxy_pass http://backend_${u};
+        proxy_buffering off;
+        include /etc/nginx/snippets/proxy-params.conf;
     }
 
     location / {
@@ -158,24 +163,29 @@ ${client_max_body_size_directive}
     }
 
     location /ws {
+        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
-        proxy_set_header Connection \$connection_upgrade;
     }
 
     location = /livekit {
+        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
-        proxy_pass http://backend_${u};
-        include /etc/nginx/snippets/proxy-params.conf;
         proxy_set_header Connection \$connection_upgrade;
+        proxy_pass http://backend_${u};
+        proxy_buffering off;
+        include /etc/nginx/snippets/proxy-params.conf;
     }
 
     location /livekit/ {
+        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
-        proxy_pass http://backend_${u};
-        include /etc/nginx/snippets/proxy-params.conf;
         proxy_set_header Connection \$connection_upgrade;
+        proxy_pass http://backend_${u};
+        proxy_buffering off;
+        include /etc/nginx/snippets/proxy-params.conf;
     }
 
     # SPA (Vite/Vue/React): бандлы и иконки; иначе location / отдаёт 403
@@ -214,10 +224,20 @@ NGX
             if [ "${FULL_PROXY:-0}" = "1" ]; then
                 cat >>"$tmp" <<NGX
     location / {
+        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
-        proxy_set_header Connection \$connection_upgrade;
+    }
+}
+
+NGX
+            elif [ "${FULL_PROXY:-0}" = "2" ]; then
+                cat >>"$tmp" <<NGX
+    location / {
+        proxy_pass http://backend_${u};
+        include /etc/nginx/snippets/proxy-params-streaming.conf;
     }
 }
 
@@ -248,24 +268,29 @@ ${client_max_body_size_directive}
     }
 
     location /ws {
+        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
-        proxy_set_header Connection \$connection_upgrade;
     }
 
     location = /livekit {
+        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
-        proxy_pass http://backend_${u};
-        include /etc/nginx/snippets/proxy-params.conf;
         proxy_set_header Connection \$connection_upgrade;
+        proxy_pass http://backend_${u};
+        proxy_buffering off;
+        include /etc/nginx/snippets/proxy-params.conf;
     }
 
     location /livekit/ {
+        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
-        proxy_pass http://backend_${u};
-        include /etc/nginx/snippets/proxy-params.conf;
         proxy_set_header Connection \$connection_upgrade;
+        proxy_pass http://backend_${u};
+        proxy_buffering off;
+        include /etc/nginx/snippets/proxy-params.conf;
     }
 
     location = / {
@@ -279,10 +304,11 @@ ${client_max_body_size_directive}
     }
 
     location / {
+        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
-        proxy_set_header Connection \$connection_upgrade;
     }
 }
 

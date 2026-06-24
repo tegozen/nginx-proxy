@@ -18,9 +18,9 @@ PORT=8080
 # SERVER_NAME=app.example.org
 # PORT=3000
 
-# LightRAG и др.: в HTTPS по умолчанию не проксируются пути вроде /webui (остальной / → 403).
-# Раскомментируйте, чтобы проксировать весь бэкенд целиком (SSE/OpenAI-compatible API):
+# LightRAG и др.: FULL_PROXY=1 — весь бэкенд (как раньше). FULL_PROXY=2 — SSE/OpenAI API (streaming-safe).
 # FULL_PROXY=1
+# FULL_PROXY=2
 #
 # Лимит размера тела запроса (по умолчанию nginx: 1m). Пример:
 # CLIENT_MAX_BODY_SIZE=50m
