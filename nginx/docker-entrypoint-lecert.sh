@@ -109,7 +109,6 @@ ${client_max_body_size_directive}
     }
 
     location /ws {
-        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
@@ -117,7 +116,6 @@ ${client_max_body_size_directive}
     }
 
     location = /livekit {
-        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
@@ -125,7 +123,6 @@ ${client_max_body_size_directive}
     }
 
     location /livekit/ {
-        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
@@ -161,7 +158,6 @@ ${client_max_body_size_directive}
     }
 
     location /ws {
-        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
@@ -169,7 +165,6 @@ ${client_max_body_size_directive}
     }
 
     location = /livekit {
-        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
@@ -177,7 +172,6 @@ ${client_max_body_size_directive}
     }
 
     location /livekit/ {
-        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
@@ -220,7 +214,6 @@ NGX
             if [ "${FULL_PROXY:-0}" = "1" ]; then
                 cat >>"$tmp" <<NGX
     location / {
-        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
@@ -255,7 +248,6 @@ ${client_max_body_size_directive}
     }
 
     location /ws {
-        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
@@ -263,7 +255,6 @@ ${client_max_body_size_directive}
     }
 
     location = /livekit {
-        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
@@ -271,7 +262,6 @@ ${client_max_body_size_directive}
     }
 
     location /livekit/ {
-        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
@@ -289,7 +279,6 @@ ${client_max_body_size_directive}
     }
 
     location / {
-        proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
