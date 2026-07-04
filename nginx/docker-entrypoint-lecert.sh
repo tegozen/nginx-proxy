@@ -26,8 +26,10 @@ upsafe() {
     echo "$1" | tr '.-' '_' | tr -cd 'a-zA-Z0-9_'
 }
 
-cert_exists() {
-    [ -f "$LE_LIVE/$1/fullchain.pem" ]
+cert_is_usable() {
+    local cert="$LE_LIVE/$1/fullchain.pem"
+    [ -f "$cert" ] || return 1
+    openssl x509 -checkend 0 -noout -in "$cert" >/dev/null 2>&1
 }
 
 render_vhosts_to() {
@@ -97,7 +99,7 @@ upstream backend_${u} {
 
 NGX
 
-        if cert_exists "$fqdn"; then
+        if cert_is_usable "$fqdn"; then
             cat >>"$tmp" <<NGX
 server {
     listen 80;
@@ -154,6 +156,9 @@ ${client_max_body_size_directive}
     include /etc/nginx/snippets/ssl-params.conf;
 
     location = / {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
     }
@@ -253,7 +258,7 @@ NGX
 NGX
             fi
         else
-            log "no cert yet for $fqdn — HTTP only until certbot succeeds"
+            log "no usable cert for $fqdn — HTTP only until certbot succeeds"
             cat >>"$tmp" <<NGX
 server {
     listen 80;
@@ -295,6 +300,9 @@ ${client_max_body_size_directive}
     }
 
     location = / {
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \$connection_upgrade;
         proxy_pass http://backend_${u};
         include /etc/nginx/snippets/proxy-params.conf;
     }
@@ -372,7 +380,7 @@ issue_missing_certs() {
         elif [ -n "${SUBDOMAIN:-}" ]; then
             fqdn="${SUBDOMAIN}.${BASE_DOMAIN}"
         fi
-        if [ -n "${PORT:-}" ] && [ -n "$fqdn" ] && ! cert_exists "$fqdn"; then
+        if [ -n "${PORT:-}" ] && [ -n "$fqdn" ] && ! cert_is_usable "$fqdn"; then
             need_issue=1
             unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY CLIENT_MAX_BODY_SIZE
             break
@@ -399,13 +407,14 @@ issue_missing_certs() {
             unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY CLIENT_MAX_BODY_SIZE
             continue
         fi
-        if cert_exists "$fqdn"; then
+        if cert_is_usable "$fqdn"; then
             unset SUBDOMAIN SERVER_NAME PORT UPSTREAM_HOST FULL_PROXY CLIENT_MAX_BODY_SIZE
             continue
         fi
-        log "requesting certificate for $fqdn"
+        log "requesting or renewing certificate for $fqdn"
         if certbot certonly \
             --webroot -w "$WEBROOT" \
+            --cert-name "$fqdn" \
             -d "$fqdn" \
             --email "$LE_EMAIL" \
             --agree-tos \
