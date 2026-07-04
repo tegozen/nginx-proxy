@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# Перезагрузка текущего сгенерированного конфига. Новые/изменённые *.vhost — docker compose restart nginx
+# Reload the currently active generated nginx config. New or changed *.vhost still need docker compose restart nginx.
 set -e
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"

@@ -1,6 +1,9 @@
 # nginx-proxy
 
-Полуавтоматический HTTPS reverse-proxy на Nginx + Certbot в Docker-окружении.
+HTTPS reverse-proxy на Nginx + Certbot в Docker-окружении.
+
+При старте контейнера сервис безопасно пересобирает nginx-конфиг, проверяет его через `nginx -t`
+и умеет чинить типичную проблему переноса `./letsencrypt`, когда каталог `live/` был скопирован без симлинков.
 
 Подробная инструкция по настройке: [SETUP.txt](./SETUP.txt).
 
